@@ -1,0 +1,32 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hashicups
+spec:
+  containers:
+  - name: api
+    image: hashicorpdemoapp/product-api:v4280cf7
+    ports:
+    - { hostPort: 19090, containerPort: 9090, protocol: TCP }
+    volumeMounts:
+    - { name: conf_json, mountPath: /config/config.json }
+    env:
+    - { name: CONFIG_FILE, value: /config/config.json }
+  - name: db
+    image: hashicorpdemoapp/product-api-db:v4280cf7
+    ports:
+    - { hostPort: 15432, containerPort: 5432, protocol: TCP }
+    env:
+    - { name: POSTGRES_DB, value: products }
+    - { name: POSTGRES_USER, value: postgres }
+    - { name: POSTGRES_PASSWORD, value: password }
+  hostAliases:
+  - ip: 127.0.0.1
+    hostnames:
+    - db
+  volumes:
+  - name: conf_json
+    hostPath:
+      type: File
+      path: ./conf.json
